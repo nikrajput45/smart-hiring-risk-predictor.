@@ -31,31 +31,41 @@ model = load_model()
 st.sidebar.header("Candidate Details")
 
 cgpa = st.sidebar.slider("CGPA", 5.0, 10.0, 7.5)
-technical = st.sidebar.slider("Technical Score", 0, 100, 70)
-aptitude = st.sidebar.slider("Aptitude Score", 0, 100, 65)
-communication = st.sidebar.slider("Communication Score", 0, 100, 75)
-internships = st.sidebar.slider("Internships", 0, 5, 1)
-projects = st.sidebar.slider("Projects", 0, 10, 3)
-experience = st.sidebar.slider("Experience (Months)", 0, 60, 12)
-leadership = st.sidebar.slider("Leadership Score", 0, 100, 60)
-cultural_fit = st.sidebar.slider("Cultural Fit Score", 0, 100, 70)
+technical_score = st.sidebar.slider("Technical Score", 40, 100, 70)
+aptitude_score = st.sidebar.slider("Aptitude Score", 40, 100, 65)
+communication_score = st.sidebar.slider("Communication Score", 1, 10, 7)
+internship_count = st.sidebar.slider("Internship Count", 0, 5, 1)
+project_count = st.sidebar.slider("Project Count", 1, 8, 3)
+experience_months = st.sidebar.slider("Experience (Months)", 0, 36, 12)
+leadership_score = st.sidebar.slider("Leadership Score", 1, 10, 6)
+cultural_fit_score = st.sidebar.slider("Cultural Fit Score", 1, 10, 7)
 
 threshold = st.sidebar.slider("Decision Threshold", 0.0, 1.0, 0.5)
 
 # -------------------------------
-# Prepare Input Data
+# Prepare Input Data (EXACT MATCH)
 # -------------------------------
-input_data = pd.DataFrame([{
-    "CGPA": cgpa,
-    "Technical_Score": technical,
-    "Aptitude_Score": aptitude,
-    "Communication_Score": communication,
-    "Internships": internships,
-    "Projects": projects,
-    "Experience_Months": experience,
-    "Leadership_Score": leadership,
-    "Cultural_Fit_Score": cultural_fit
-}])
+input_data = pd.DataFrame([[ 
+    cgpa,
+    technical_score,
+    aptitude_score,
+    communication_score,
+    internship_count,
+    project_count,
+    experience_months,
+    leadership_score,
+    cultural_fit_score
+]], columns=[
+    "cgpa",
+    "technical_score",
+    "aptitude_score",
+    "communication_score",
+    "internship_count",
+    "project_count",
+    "experience_months",
+    "leadership_score",
+    "cultural_fit_score"
+])
 
 # -------------------------------
 # Prediction
@@ -66,8 +76,7 @@ if st.button("Predict Hiring Risk"):
     prediction = 1 if probability >= threshold else 0
 
     st.subheader("Prediction Result")
-
-    st.write(f"**Predicted Probability of High Risk:** {probability:.2f}")
+    st.write(f"**Predicted Probability of Success:** {probability:.2f}")
 
     # Risk Category Logic
     if probability < 0.4:
@@ -83,10 +92,9 @@ if st.button("Predict Hiring Risk"):
 st.subheader("📈 Global Feature Importance")
 
 feature_importance = model.feature_importances_
-features = input_data.columns
 
 importance_df = pd.DataFrame({
-    "Feature": features,
+    "Feature": input_data.columns,
     "Importance": feature_importance
 }).sort_values(by="Importance", ascending=False)
 
