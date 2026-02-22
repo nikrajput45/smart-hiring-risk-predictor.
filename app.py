@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import joblib
 import matplotlib.pyplot as plt
 
@@ -40,10 +39,10 @@ experience_months = st.sidebar.slider("Experience (Months)", 0, 36, 12)
 leadership_score = st.sidebar.slider("Leadership Score", 1, 10, 6)
 cultural_fit_score = st.sidebar.slider("Cultural Fit Score", 1, 10, 7)
 
-threshold = st.sidebar.slider("Decision Threshold", 0.0, 1.0, 0.5)
+threshold = st.sidebar.slider("Decision Threshold (Risk Threshold)", 0.0, 1.0, 0.5)
 
 # -------------------------------
-# Prepare Input Data (EXACT MATCH)
+# Prepare Input Data (Exact Match)
 # -------------------------------
 input_data = pd.DataFrame([[ 
     cgpa,
@@ -68,20 +67,22 @@ input_data = pd.DataFrame([[
 ])
 
 # -------------------------------
-# Prediction
+# Prediction Logic (FIXED)
 # -------------------------------
 if st.button("Predict Hiring Risk"):
 
-    probability = model.predict_proba(input_data)[0][1]
-    prediction = 1 if probability >= threshold else 0
+    probability_success = model.predict_proba(input_data)[0][1]
+    probability_risk = 1 - probability_success
 
     st.subheader("Prediction Result")
-    st.write(f"**Predicted Probability of Success:** {probability:.2f}")
 
-    # Risk Category Logic
-    if probability < 0.4:
+    st.write(f"**Predicted Probability of Success:** {probability_success:.2f}")
+    st.write(f"**Predicted Risk Probability:** {probability_risk:.2f}")
+
+    # Risk Category Based on Risk Probability
+    if probability_risk < 0.4:
         st.success("Low Risk Candidate ✅")
-    elif 0.4 <= probability < 0.7:
+    elif 0.4 <= probability_risk < 0.7:
         st.warning("Medium Risk Candidate ⚠️")
     else:
         st.error("High Risk Candidate ❌")
